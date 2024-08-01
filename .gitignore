@@ -1,0 +1,10 @@
+Oanda/defs.py
+instruments.pkl
+currency_instruments.pkl
+data/*
+his_data/*
+*/__pycache__/*
+
+
+Oanda/to_delete/*
+
