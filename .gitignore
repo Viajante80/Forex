@@ -2,3 +2,4 @@ Oanda/defs.py
 Oanda/instruments.pkl
 */__pycache__/*
 
+Oanda/data/*
