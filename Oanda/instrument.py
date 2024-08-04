@@ -1,6 +1,6 @@
 import pandas as pd
 
-instruments_data_filename = "./Oanda/instruments.pkl"
+import utils
 
 
 class Instrument():
@@ -16,7 +16,7 @@ class Instrument():
 
     @classmethod
     def get_instruments_df(cls):
-        return pd.read_pickle(instruments_data_filename)
+        return pd.read_pickle(utils.get_instruments_data_filename())
 
     @classmethod
     def get_instruments_list(cls):
@@ -25,5 +25,7 @@ class Instrument():
 
 
 if __name__ == "__main__":
+    print(Instrument.get_instruments_df())
     print(Instrument.get_instruments_list())
+    
 
