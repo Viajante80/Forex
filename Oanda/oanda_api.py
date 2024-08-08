@@ -1,50 +1,51 @@
-import requests
+import oandapyV20
+import oandapyV20.endpoints.accounts as accounts
+import Oanda.defs as defs
 import pandas as pd
-import defs
-import utils
+import Oanda.utils as utils 
 
-class OandaAPI():
 
-    def __init__(self):
-        self.session = requests.Session()    
-
-    def fetch_instruments(self):
-        url = f"{defs.OANDA_URL}/accounts/{defs.ACCOUNT_ID}/instruments"
-        response = self.session.get(url, params=None, headers=defs.SECURE_HEADER)
-        return response.status_code, response.json()
+class Instrument:
+    def __init__(self, ob):
+        self.name = ob['name']
+        self.ins_type = ob['type']
+        self.displayName = ob['displayName']
+        self.pipLocation = pow(10, ob['pipLocation']) # -4 -> 0.0001
+        self.marginRate = ob['marginRate']
+        
+    def __repr__(self):
+        return str(vars(self))
     
-    def get_instruments_df(self):
-        code, data = self.fetch_instruments()
-        if code == 200:
-            df = pd.DataFrame.from_dict(data['instruments'])
-            return df[['name', 'type', 'displayName', 'pipLocation', 'marginRate']]
-        else:
-            return None
+    @classmethod
+    def get_instruments_df(cls):
+        return pd.read_pickle(utils.get_instruments_data_filename())
     
-    def save_instruments(self):
-        df = self.get_instruments_df()
-        if df is not None:
-            df.to_pickle(utils.get_instruments_data_filename())
+    @classmethod
+    def get_instruments_list(cls):
+        df = cls.get_instruments_df()
+        return [Instrument(x) for x in df.to_dict(orient='records')]
+    
+    @classmethod
+    def get_currency_instruments_df(cls):
+        return pd.read_pickle(utils.get_currency_instruments_data_filename())
+    
+    @classmethod
+    def get_currency_instruments_list(cls):
+        df = cls.get_currency_instruments_df()
+        return [Instrument(x) for x in df.to_dict(orient='records')]
 
-    def fetch_candles(self, pair_name, count, granularity):
-        url = f"{defs.OANDA_URL}/instruments/{pair_name}/candles"
+   
+    @classmethod
+    def get_instruments_api(cls, environment="practice"):
+        
+        # Create the API client
+        client = oandapyV20.API(access_token=defs.API_KEY, environment=environment)
 
-        params = dict(
-            count = count,
-            granularity = granularity,
-            price = "MBA"
-        )
+        # Define the request for instruments associated with your account
+        request = accounts.AccountInstruments(accountID=defs.ACCOUNT_ID)
 
-        response = self.session.get(url, params=params, headers=defs.SECURE_HEADER)
+        # Perform the request
+        response = client.request(request)
 
-        return response.status_code, response.json()
-
-
-if __name__ == "__main__":
-    api = OandaAPI()
-    # api.save_instruments()
-    # print(api.fetch_candles("EUR_USD", 10, "H1"))
-    # print(api.fetch_instruments())
-    # print(api.get_instruments_df())
-    api.save_instruments()
+        return response
 
