@@ -1,10 +1,12 @@
-Oanda/defs.py
+defs.py
 instruments.pkl
 currency_instruments.pkl
-data/*
+ma_test_res.pkl
+all_trades.pkl
+
 his_data/*
-*/__pycache__/*
+__pycache__
 
+Oanda_delete/*
 
-Oanda/to_delete/*
 
